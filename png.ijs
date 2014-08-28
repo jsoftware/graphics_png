@@ -126,4 +126,16 @@ n=. #y
 )
 
 adler32=: [: ({: (23 b.) 16&(33 b.)@{.) _1 0 + [: ((65521 | +)/ , {.) [: (65521 | +)/\. 1 ,~ a. i. |.
+install=: 3 : 0
+if. -. IFWIN do. return. end.
+require 'pacman'
+'rc p'=. httpget_jpacman_ 'http://www.jsoftware.com/download/', z=. 'winlib/',(IF64{::'x86';'x64'),'/zlib1.dll'
+if. rc do.
+  smoutput 'unable to download: ',z return.
+end.
+(<jpath'~bin/libz1.dll') 1!:2~ 1!:1 <p
+1!:55 ::0: <p
+smoutput 'done'
+EMPTY
+)
 writepng_z_=: writepng_jpng_

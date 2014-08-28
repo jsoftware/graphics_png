@@ -6,11 +6,12 @@ DESCRIPTION=: 0 : 0
 Utilities for *.png files
 )
 
-VERSION=: '1.0.0'
+VERSION=: '1.0.1'
 
 RELEASE=: 'j803'
 
 FILES=: 0 : 0
 png.ijs
+readme.txt
 history.txt
 )
