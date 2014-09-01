@@ -16,11 +16,24 @@ prev=. ({:sy)#0
 for_i. i.{.sy do.
   type=. 0
   iy=. i{y
-  if. (+/iy) > +/ sub=. 256&| iy - (-x)}.(x#0),iy do.
-    type=. 1
-    iy=. sub
+  sum=. +/@signbyte iy
+  sum=. sum, +/@signbyte sub=. 256&| iy - (-x)}.(x#0),iy
+  sum=. | sum, +/@signbyte up=. 256&| iy - prev
+  sum=. | sum, +/@signbyte ave=. 256&| iy - <.@-: prev+(-x)}.(x#0),iy
+  sum=. | sum, +/@signbyte pae=. 256&| iy - paeth"1 ((-x)}.(x#0),iy),.prev,.((-x)}.(x#0),prev)
+  type=. sum i.(<./sum)
+  prev=. iy
+  if. 1=type do.
+    r=. r, type, sub
+  elseif. 2=type do.
+    r=. r, type, up
+  elseif. 3=type do.
+    r=. r, type, ave
+  elseif. 4=type do.
+    r=. r, type, pae
+  elseif. do.
+    r=. r, type, iy
   end.
-  r=. r, type, iy
 end.
 (0 1+sy)$a.{~r
 )
@@ -42,7 +55,7 @@ for_i. i.{.sy do.
     raw=. x#0
     prevbpp=. (-x)}.(x#0),prev
     for_j. i.#iy do.
-      raw=. raw, 256&| (j{iy) + (j{prev) (j{raw) paeth j{prevbpp
+      raw=. raw, 256&| (j{iy) + paeth (j{prev), (j{raw), j{prevbpp
     end.
     r=. r, prev=. x}.raw
   elseif. do.
@@ -51,17 +64,10 @@ for_i. i.{.sy do.
 end.
 sy$a.{~r
 )
-paeth=: 1 : 0
-:
-a=. m [ b=. x [ c=. y
-p=. a+b-c
-'pa pb pc'=. | p-a,b,c
-if. (pa<:pb) *. pa<:pc do. a return.
-elseif. pb<:pc do. b return.
-elseif. do. c return.
-end.
+paeth=: 3 : 0
+p=. +/ 1 1 _1 * y
+y{~ (i.<./) |p-y
 )
-
 readpng=: 3 : 0
 
 r=. readpnghdrall y
@@ -268,6 +274,8 @@ le32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:(-.ENDIAN))
 adler32=: [: ({: (23 b.) 16&(33 b.)@{.) _1 0 + [: ((65521 | +)/ , {.) [: (65521 | +)/\. 1 ,~ a. i. |.
 NB, png checksum
 crc32=: <.@:((2^32)&|)^:IF64 @: (((i.32) e. 32 26 23 22 16 12 11 10 8 7 5 4 2 1 0)&(128!:3))
+NB, intepret byte as signed
+signbyte=: ] - 256 * 127 <  ]
 readpng_z_=: readpng_jpng_
 writepng_z_=: writepng_jpng_
 readpnghdr_z_=: readpnghdr_jpng_
