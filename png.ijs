@@ -18,8 +18,8 @@ for_i. i.{.sy do.
   iy=. i{y
   sum=. +/@signbyte iy
   sum=. sum, +/@signbyte sub=. 256&| iy - (-x)}.(x#0),iy
-  sum=. | sum, +/@signbyte up=. 256&| iy - prev
-  sum=. | sum, +/@signbyte ave=. 256&| iy - <.@-: prev+(-x)}.(x#0),iy
+  sum=. sum, +/@signbyte up=. 256&| iy - prev
+  sum=. sum, +/@signbyte ave=. 256&| iy - <.@-: prev+(-x)}.(x#0),iy
   sum=. | sum, +/@signbyte pae=. 256&| iy - paeth"1 ((-x)}.(x#0),iy),.prev,.((-x)}.(x#0),prev)
   type=. sum i.(<./sum)
   prev=. iy
@@ -274,7 +274,7 @@ le32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:(-.ENDIAN))
 adler32=: [: ({: (23 b.) 16&(33 b.)@{.) _1 0 + [: ((65521 | +)/ , {.) [: (65521 | +)/\. 1 ,~ a. i. |.
 NB, png checksum
 crc32=: <.@:((2^32)&|)^:IF64 @: (((i.32) e. 32 26 23 22 16 12 11 10 8 7 5 4 2 1 0)&(128!:3))
-NB, intepret byte as signed
+NB, interpret byte as signed
 signbyte=: ] - 256 * 127 <  ]
 readpng_z_=: readpng_jpng_
 writepng_z_=: writepng_jpng_
