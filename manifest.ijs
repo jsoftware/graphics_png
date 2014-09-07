@@ -6,12 +6,15 @@ DESCRIPTION=: 0 : 0
 Utilities for *.png files
 )
 
-VERSION=: '1.0.3'
+VERSION=: '1.0.4'
 
 RELEASE=: 'j803'
 
+DEPENDS=: 0 : 0
+arc/zlib
+)
+
 FILES=: 0 : 0
 png.ijs
-readme.txt
 history.txt
 )

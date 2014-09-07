@@ -1,9 +1,6 @@
-coclass 'jpng'
-zlib=: IFUNIX{::'zlib1.dll';unxlib 'z'
-NOZLIB=: 0=(zlib,' zlibVersion >',(IFWIN#'+'),' x')&cd ::0:''
-zcompress2=: (zlib, ' compress2 >',(IFWIN#'+'),' i *c *x *c x i')&cd
-zuncompress=: (zlib, ' uncompress >',(IFWIN#'+'),' i *c *x *c x')&cd
+require 'arc/zlib'
 
+coclass 'jpng'
 magic=: 137 80 78 71 13 10 26 10{a.
 ffilter0=: 4 : 0
 ({.a.),"1 y return.
@@ -75,9 +72,6 @@ if. 2 = 3!:0 r do. return. end.
 'nos dat'=. r
 'width height bit color compression filter interlace'=. nos
 
-if. NOZLIB do.
-  'missing zlib' return.
-end.
 if. 0~:filter do.
   'invalid filter' return.
 end.
@@ -116,12 +110,12 @@ for_i. i.#id do.
   idat=. idat, len{.(8+i{id)}.dat
   p=. p+len
 end.
-datalen=. , (1+((3=color){1,~3+6=color)*width)*height
-data=. ({.datalen)#{.a.
-if. 0~: rc=. zuncompress data;datalen;idat;#idat do.
+datalen=. (1+((3=color){1,~3+6=color)*width)*height
+try.
+  data=. datalen zlib_uncompress_jzlib_ idat
+catch.
   'zlib uncompression error' return.
 end.
-data=. ({.datalen){.data
 if. color e. 0 4 do.
   if. (4=color) > bit e. 8 16 do.
     'only 8 and 16 bit grayscale can have alpha channel' return.
@@ -218,10 +212,10 @@ if. (16>bit)*.((bit%~*/8,wh)>4*#pal) do.
     y=. a.{~ 16&#.@(_2&(]\))"1 a.i.y
   end.
   lines=. , 1&ffilter0 y
-  magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('IDAT' png_chunk cmp zlib_stream`uczlib_stream@.NOZLIB lines), ('IEND' png_chunk '')
+  magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
 else.
   lines=. , 3&ffilter ,"2 }:@Endian@(2&ic)"0 fliprgb y
-  magic, (png_header wh,8, 2), ('IDAT' png_chunk cmp zlib_stream`uczlib_stream@.NOZLIB lines), ('IEND' png_chunk '')
+  magic, (png_header wh,8, 2), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
 end.
 )
 png_chunk=: 4 : 0
@@ -229,35 +223,6 @@ png_chunk=: 4 : 0
 )
 png_header=: 3 : 0
 'IHDR' png_chunk (,be32"0 [ 2{.y), ((2}.y), 0 0 0){a.
-)
-zlib_stream=: 4 : 0
-len=. ,12+>.1.001*#y
-buf=. ({.len)$' '
-assert. 0= zcompress2 buf ; len ; y ; (#y) ; x
-({.len){.buf
-)
-uczlib_stream=: 4 : 0
-MAX_DEFLATE=. 16bffff
-segments=. (-MAX_DEFLATE) <\ y
-blocks=. ; 0&deflate_block&.> }:segments
-blocks=. blocks, 1&deflate_block >@{:segments
-(16b78 1 {a.) , blocks , be32 adler32 y
-)
-deflate_block=: 4 : 0
-n=. #y
-(x{a.),(Endian 1&ic n),(Endian 1&ic 0 (26 b.) n), y
-)
-install=: 3 : 0
-if. -. IFWIN do. return. end.
-require 'pacman'
-'rc p'=. httpget_jpacman_ 'http://www.jsoftware.com/download/', z=. 'winlib/',(IF64{::'x86';'x64'),'/zlib1.dll'
-if. rc do.
-  smoutput 'unable to download: ',z return.
-end.
-(<jpath'~bin/zlib1.dll') 1!:2~ 1!:1 <p
-1!:55 ::0: <p
-smoutput 'done'
-EMPTY
 )
 gray2rgb=: 4 : 0
 if. 1=x do.
@@ -271,7 +236,6 @@ be32=: ,@:(|."1)@(_4&(]\))^:ENDIAN@:(2&ic)
 be32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:ENDIAN)
 le32=: ,@:(|."1)@(_4&(]\))^:(-.ENDIAN)@:(2&ic)
 le32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:(-.ENDIAN))
-adler32=: [: ({: (23 b.) 16&(33 b.)@{.) _1 0 + [: ((65521 | +)/ , {.) [: (65521 | +)/\. 1 ,~ a. i. |.
 NB, png checksum
 crc32=: <.@:((2^32)&|)^:IF64 @: (((i.32) e. 32 26 23 22 16 12 11 10 8 7 5 4 2 1 0)&(128!:3))
 NB, interpret byte as signed
