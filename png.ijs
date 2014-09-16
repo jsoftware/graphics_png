@@ -196,7 +196,7 @@ end.
 (boxopen file) 1!:2~ cmp encodepng_unx dat
 )
 encodepng_unx=: 4 : 0
-cmp=. (_1=x){x,6
+cmp=. (_1=x){x,NOZLIB_jzlib_{6 2
 wh=. |. sy=. $y
 
 pal=. ~. ,y
