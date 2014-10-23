@@ -47,7 +47,7 @@ for_i. i.{.sy do.
   elseif. 2=i{f do.
     r=. r, prev=. iy (256&|@:+) prev
   elseif. 3=i{f do.
-    r=. r, prev=. <. 2%~ ((-x)}.(x#0), iy) + prev
+    r=. r, prev=. prev (x rave) iy
   elseif. 4=i{f do.
     raw=. x#0
     prevbpp=. (-x)}.(x#0),prev
@@ -64,6 +64,14 @@ sy$a.{~r
 paeth=: 3 : 0
 p=. +/ 1 1 _1 * y
 y{~ (i.<./) |p-y
+)
+rave=: 1 : 0
+:
+raw=. m#0
+for_i. i.#y do.
+  raw=. raw, 256&| (i{y) + <. 2%~ (i{raw) + i{x
+end.
+m}.raw
 )
 readpng=: 3 : 0
 
