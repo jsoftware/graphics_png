@@ -129,16 +129,16 @@ if. color e. 0 4 do.
     'only 8 and 16 bit grayscale can have alpha channel' return.
   end.
   if. 1=bit do.
-    r=. (height,width)$ alpha23 1&gray2rgb , #: a.i. , 1&rfilter (height,1+>.width%8) $ data
+    r=. (height,width)$ setalpha 1&gray2rgb , #: a.i. , 1&rfilter (height,1+>.width%8) $ data
   elseif. 2=bit do.
-    r=. (height,width)$ alpha23 2&gray2rgb , 4 4 4 4 #: a.i. , 1&rfilter (height,1+>.width%4) $ data
+    r=. (height,width)$ setalpha 2&gray2rgb , 4 4 4 4 #: a.i. , 1&rfilter (height,1+>.width%4) $ data
   elseif. 4=bit do.
-    r=. (height,width)$ alpha23 4&gray2rgb , 16 16 #: a.i. , 1&rfilter (height,1+>.width%2) $ data
+    r=. (height,width)$ setalpha 4&gray2rgb , 16 16 #: a.i. , 1&rfilter (height,1+>.width%2) $ data
   elseif. 8=bit do.
     if. 0=color do.
-      r=. (height,width)$ alpha23 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
+      r=. (height,width)$ setalpha 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
     else.
-      r=. (height,width)$ ((_32&(34 b.))^:IF64 _8 (32 b.) a.i. {.("1) a) (23 b.) 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
+      r=. (height,width)$ ({.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
     end.
   elseif. do.
     'only 1 2 4 8 bit grayscale PNGs support' return.
@@ -198,14 +198,14 @@ dat=. x
 
 if3=. (3=#$dat) *. 3={:$dat
 if. if3 do.
-  dat=. alpha23 256 256 256&#. dat
+  dat=. setalpha 256 256 256&#. dat
 end.
 
 (boxopen file) 1!:2~ cmp encodepng_unx dat
 )
 encodepng_unx=: 4 : 0
 cmp=. (_1=x){x,NOZLIB_jzlib_{6 2
-wh=. |. sy=. $y=. alpha17 y
+wh=. |. sy=. $y=. 0&setalpha y
 
 pal=. ~. ,y
 bit=. 1 2 4 8 16 {~ +/ 2 4 16 256 < # pal
@@ -232,7 +232,9 @@ png_chunk=: 4 : 0
 png_header=: 3 : 0
 'IHDR' png_chunk (,be32"0 [ 2{.y), ((2}.y), 0 0 0){a.
 )
-alpha23_z_=: (23 b.) & (0 (26 b.) 16bffffff)
+setalpha_z_=: 16bff&$: : (4 : 0)
+((_32&(34 b.))^:IF64 _8 (32 b.) x)&(23 b.) 16bffffff (17 b.) y
+)
 gray2rgb=: 4 : 0
 if. 1=x do.
   <.y*16bffffff
