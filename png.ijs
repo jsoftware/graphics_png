@@ -106,6 +106,25 @@ end.
 
 id=. I. 'IDAT' E. dat
 if. 0=#id do. 'missing IDAT' return. end.
+
+trns=. 0$0
+if. color -.@e. 4 6 do.
+  d=. ({.id){. dat
+  if. #ir=. I. 'tRNS' E. d do.
+    p=. {.ir-4
+    len=. {.be32inv (p+i.4){dat
+    s=. a.i. len{.(8+p)}.dat
+    if. 0=color do.
+      trns=. 8&gray2rgb 256 #. _2]\ s
+    elseif. 2=color do.
+      trns=. 256 #. _3]\ 256 #. _2]\ s
+    elseif. 3=color do.
+      trns=. (#ipal){.!.255 s
+      ipal=. trns setalpha ipal
+    end.
+  end.
+end.
+
 id=. id-4
 idat=. ''
 p=. {.id
@@ -118,7 +137,7 @@ for_i. i.#id do.
   idat=. idat, len{.(8+i{id)}.dat
   p=. p+len
 end.
-datalen=. (1+((3=color){1,~3+6=color)*width)*height
+datalen=. 0
 try.
   data=. datalen zlib_uncompress_jzlib_ idat
 catch.
@@ -129,14 +148,14 @@ if. color e. 0 4 do.
     'only 8 and 16 bit grayscale can have alpha channel' return.
   end.
   if. 1=bit do.
-    r=. (height,width)$ setalpha 1&gray2rgb , #: a.i. , 1&rfilter (height,1+>.width%8) $ data
+    r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 1&gray2rgb , #: a.i. , 1&rfilter (height,1+>.width%8) $ data
   elseif. 2=bit do.
-    r=. (height,width)$ setalpha 2&gray2rgb , 4 4 4 4 #: a.i. , 1&rfilter (height,1+>.width%4) $ data
+    r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 2&gray2rgb , 4 4 4 4 #: a.i. , 1&rfilter (height,1+>.width%4) $ data
   elseif. 4=bit do.
-    r=. (height,width)$ setalpha 4&gray2rgb , 16 16 #: a.i. , 1&rfilter (height,1+>.width%2) $ data
+    r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 4&gray2rgb , 16 16 #: a.i. , 1&rfilter (height,1+>.width%2) $ data
   elseif. 8=bit do.
     if. 0=color do.
-      r=. (height,width)$ setalpha 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
+      r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
     else.
       r=. (height,width)$ ({.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
     end.
@@ -158,11 +177,14 @@ elseif. 3=color do.
 elseif. 6=color do.
   r=. (height,width)$ fliprgb le32inv , 4&rfilter (height,1+4*width) $ data
 elseif. 2=color do.
-  r=. (height,width)$ fliprgb le32inv , ({:a.),~("1) _3[\ , 3&rfilter (height,1+3*width) $ data
+  r=. (height,width)$ fliprgb (trns&transparent)^:(*#trns) le32inv , ({:a.),~("1) _3[\ , 3&rfilter (height,1+3*width) $ data
 elseif. do.
   'invalid color type' return.
 end.
 r
+)
+transparent=: 4 : 0
+((255 0){~({.x)=y) setalpha y
 )
 readpnghdr=: 3 : 0
 r=. readpnghdrall y
@@ -198,19 +220,27 @@ dat=. x
 
 if3=. (3=#$dat) *. 3={:$dat
 if. if3 do.
-  dat=. setalpha 256 256 256&#. dat
+  dat=. setalpha 256&#. dat
 end.
 
 (boxopen file) 1!:2~ cmp encodepng_unx dat
 )
 encodepng_unx=: 4 : 0
 cmp=. (_1=x){x,NOZLIB_jzlib_{6 2
-wh=. |. sy=. $y=. 0&setalpha y
+wh=. |. sy=. $y
+
+opaque=. *./ 255= , getalpha y
+if. opaque do. y=. 0&setalpha y end.
 
 pal=. ~. ,y
 bit=. 1 2 4 8 16 {~ +/ 2 4 16 256 < # pal
 if. (16>bit)*.((bit%~*/8,wh)>4*#pal) do.
-  y=. sy $ a.{~ pal i. ,y
+  if. -.opaque do.
+    alfa=. a.{~ getalpha pal
+    pal=. 0&setalpha pal
+    y=. 0&setalpha y
+  end.
+  y=. sy $ a.{~ pal i. y
   ipal=. , }:@Endian@(2&ic)"0 fliprgb pal
   if. 1=bit do.
     y=. a.{~ #.@(_8&(]\))"1 a.i.y
@@ -220,10 +250,19 @@ if. (16>bit)*.((bit%~*/8,wh)>4*#pal) do.
     y=. a.{~ 16&#.@(_2&(]\))"1 a.i.y
   end.
   lines=. , 1&ffilter0 y
-  magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  if. opaque do.
+    magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  else.
+    magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('tRNS' png_chunk alfa), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  end.
 else.
-  lines=. , 3&ffilter ,"2 }:@Endian@(2&ic)"0 fliprgb y
-  magic, (png_header wh,8, 2), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  if. opaque do.
+    lines=. , 3&ffilter ,"2 }:@Endian@(2&ic)"0 fliprgb y
+    magic, (png_header wh,8, 2), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  else.
+    lines=. , 4&ffilter ,"2 Endian@(2&ic)"0 fliprgb y
+    magic, (png_header wh,8, 6), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
+  end.
 end.
 )
 png_chunk=: 4 : 0
