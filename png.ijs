@@ -271,11 +271,6 @@ png_chunk=: 4 : 0
 png_header=: 3 : 0
 'IHDR' png_chunk (,be32"0 [ 2{.y), ((2}.y), 0 0 0){a.
 )
-setalpha_z_=: 16bff&$: : (4 : 0)
-((_32&(34 b.))^:IF64 _8 (32 b.) x)&(23 b.) 16bffffff (17 b.) y
-)
-
-getalpha_z_=: 16bff (17 b.) _24&(34 b.)
 gray2rgb=: 4 : 0
 if. 1=x do.
   <.y*16bffffff
