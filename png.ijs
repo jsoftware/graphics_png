@@ -283,9 +283,7 @@ be32=: ,@:(|."1)@(_4&(]\))^:ENDIAN@:(2&ic)
 be32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:ENDIAN)
 le32=: ,@:(|."1)@(_4&(]\))^:(-.ENDIAN)@:(2&ic)
 le32inv=: (_2&ic)@:(,@:(|."1)@(_4&(]\))^:(-.ENDIAN))
-NB, png checksum
 crc32=: <.@:((2^32)&|)^:IF64 @: (((i.32) e. 32 26 23 22 16 12 11 10 8 7 5 4 2 1 0)&(128!:3))
-NB, interpret byte as signed
 signbyte=: ] - 256 * 127 <  ]
 readpng_z_=: readpng_jpng_
 writepng_z_=: writepng_jpng_
