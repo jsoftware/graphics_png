@@ -1,6 +1,24 @@
 require 'arc/zlib'
 
 coclass 'jpng'
+3 : 0''
+if. 0~: 4!:0<'USEQTPNG' do.
+  if. IFQT do.
+    USEQTPNG=: 1
+  elseif. -. IFIOS +. ((UNAME-:'Android') > IFQT) +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) do.
+    if. 0 < #1!:0 jpath '~addons/ide/qt/qt.ijs' do.
+      require '~addons/ide/qt/qt.ijs'
+      USEQTPNG=: 1
+    else.
+      USEQTPNG=: 0
+    end.
+  elseif. do.
+    USEQTPNG=: 0
+  end.
+end.
+EMPTY
+)
+
 magic=: 137 80 78 71 13 10 26 10{a.
 ffilter0=: 4 : 0
 ({.a.),"1 y return.
@@ -75,6 +93,12 @@ m}.raw
 )
 readpng=: 3 : 0
 
+if. USEQTPNG do.
+  if. 0=# dat=. readimg_jqtide_ y do.
+    'Qt cannot read PNG file' return.
+  end.
+  dat return.
+end.
 r=. readpnghdrall y
 if. 2 = 3!:0 r do. return. end.
 'nos dat'=. r
@@ -223,7 +247,11 @@ if. if3 do.
   dat=. setalpha 256&#. dat
 end.
 
-(boxopen file) 1!:2~ cmp encodepng_unx dat
+if. USEQTPNG do.
+  dat writeimg_jqtide_ (>file);'png';'quality';_1
+else.
+  (boxopen file) 1!:2~ cmp encodepng_unx dat
+end.
 )
 encodepng_unx=: 4 : 0
 cmp=. (_1=x){x,NOZLIB_jzlib_{6 2
@@ -240,7 +268,7 @@ if. (16>bit)*.((bit%~*/8,wh)>4*#pal) do.
     pal=. 0&setalpha pal
     y=. 0&setalpha y
   end.
-  y=. sy $ a.{~ pal i. y
+  y=. sy $ ,a.{~ pal i. y
   ipal=. , }:@Endian@(2&ic)"0 fliprgb pal
   if. 1=bit do.
     y=. a.{~ #.@(_8&(]\))"1 a.i.y
@@ -249,7 +277,11 @@ if. (16>bit)*.((bit%~*/8,wh)>4*#pal) do.
   elseif. 4=bit do.
     y=. a.{~ 16&#.@(_2&(]\))"1 a.i.y
   end.
-  lines=. , 1&ffilter0 y
+  if. 4 > (*/wh) % #pal do.
+    lines=. , 1&ffilter0 y
+  else.
+    lines=. , 1&ffilter y
+  end.
   if. opaque do.
     magic, (png_header wh,bit, 3), ('PLTE' png_chunk ipal), ('IDAT' png_chunk cmp&zlib_compress_jzlib_ lines), ('IEND' png_chunk '')
   else.
