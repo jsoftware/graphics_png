@@ -5,7 +5,7 @@ coclass 'jpng'
 if. 0~: 4!:0<'USEQTPNG' do.
   if. IFQT do.
     USEQTPNG=: 1
-  elseif. -. IFIOS +. ((UNAME-:'Android') > IFQT) +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) do.
+  elseif. -. IFIOS +. IFJA +. ((UNAME-:'Android') > IFQT) +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) do.
     if. 0 < #1!:0 jpath '~addons/ide/qt/qt.ijs' do.
       require '~addons/ide/qt/qt.ijs'
       USEQTPNG=: 1
@@ -16,6 +16,10 @@ if. 0~: 4!:0<'USEQTPNG' do.
     USEQTPNG=: 0
   end.
 end.
+if. 0~: 4!:0<'USEJAPNG' do.
+  USEJAPNG=: IFJA
+end.
+
 EMPTY
 )
 
@@ -96,6 +100,11 @@ readpng=: 3 : 0
 if. USEQTPNG do.
   if. 0=# dat=. readimg_jqtide_ y do.
     'Qt cannot read PNG file' return.
+  end.
+  dat return.
+elsif. USEJAPNG do.
+  if. 0=# dat=. readimg_ja_ y do.
+    'jandroid cannot read PNG file' return.
   end.
   dat return.
 end.
@@ -249,7 +258,9 @@ end.
 
 if. USEQTPNG do.
   dat writeimg_jqtide_ (>file);'png';'quality';_1
-else.
+elseif. USEJAPNG do.
+  dat writeimg_ja_ (>file);'png';'quality';_1
+elseif. do.
   (boxopen file) 1!:2~ cmp encodepng_unx dat
 end.
 )
