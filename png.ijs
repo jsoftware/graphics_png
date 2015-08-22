@@ -102,7 +102,7 @@ if. USEQTPNG do.
     'Qt cannot read PNG file' return.
   end.
   dat return.
-elsif. USEJAPNG do.
+elseif. USEJAPNG do.
   if. 0=# dat=. readimg_ja_ y do.
     'jandroid cannot read PNG file' return.
   end.
