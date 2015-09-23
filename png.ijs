@@ -5,7 +5,7 @@ coclass 'jpng'
 if. 0~: 4!:0<'USEQTPNG' do.
   if. IFQT do.
     USEQTPNG=: 1
-  elseif. -. IFIOS +. IFJA +. ((UNAME-:'Android') > IFQT) +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) do.
+  elseif. -. IFIOS +. IFJA +. (UNAME-:'Android') +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) +. ((UNAME-:'Linux') *. (0;'') e.~ <2!:5 'DISPLAY') do.
     if. 0 < #1!:0 jpath '~addons/ide/qt/qt.ijs' do.
       require '~addons/ide/qt/qt.ijs'
       USEQTPNG=: 1
