@@ -6,9 +6,9 @@ DESCRIPTION=: 0 : 0
 Utilities for *.png files
 )
 
-VERSION=: '1.0.19'
+VERSION=: '1.0.20'
 
-RELEASE=: 'j804'
+RELEASE=: 'j804 j805'
 
 DEPENDS=: 0 : 0
 arc/zlib
