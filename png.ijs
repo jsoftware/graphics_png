@@ -1,6 +1,7 @@
 require 'arc/zlib'
 
 coclass 'jpng'
+IFJNET=: (IFJNET"_)^:(0=4!:0<'IFJNET')0
 3 : 0''
 if. 0~: 4!:0<'USEQTPNG' do.
   if. IFQT do.
@@ -18,6 +19,9 @@ if. 0~: 4!:0<'USEQTPNG' do.
 end.
 if. 0~: 4!:0<'USEJAPNG' do.
   USEJAPNG=: IFJA
+end.
+if. 0~: 4!:0<'USEJNPNG' do.
+  USEJNPNG=: IFJNET
 end.
 
 EMPTY
@@ -105,6 +109,11 @@ if. USEQTPNG do.
 elseif. USEJAPNG do.
   if. 0=# dat=. readimg_ja_ y do.
     'jandroid cannot read PNG file' return.
+  end.
+  dat return.
+elseif. USEJNPNG do.
+  if. 0=# dat=. readimg_ja_ y do.
+    'jnet cannot read PNG file' return.
   end.
   dat return.
 end.
@@ -259,7 +268,13 @@ end.
 if. USEQTPNG do.
   dat writeimg_jqtide_ (>file);'png';'quality';_1
 elseif. USEJAPNG do.
-  dat writeimg_ja_ (>file);'png';'quality';_1
+  if. 805> ".}.(i.&'/' {. ])9!:14'' do.
+    dat writeimg_ja_ (>file);'png';'quality';_1
+  else.
+    writeimg_ja_ dat;(>file);'png';'quality';_1
+  end.
+elseif. USEJNPNG do.
+  dat writeimg_jnet_ dat;(>file);'png';'quality';_1
 elseif. do.
   (boxopen file) 1!:2~ cmp encodepng_unx dat
 end.
