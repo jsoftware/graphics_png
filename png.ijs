@@ -271,7 +271,7 @@ elseif. USEJAPNG do.
   if. 805> ".}.(i.&'/' {. ])9!:14'' do.
     dat writeimg_ja_ (>file);'png';'quality';_1
   else.
-    writeimg_ja_ dat;(>file);'png';'quality';_1
+    writeimg_ja_ dat;(>file);'png'
   end.
 elseif. USEJNPNG do.
   dat writeimg_jnet_ dat;(>file);'png';'quality';_1
