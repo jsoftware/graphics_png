@@ -274,7 +274,7 @@ elseif. USEJAPNG do.
     writeimg_ja_ dat;(>file);'png'
   end.
 elseif. USEJNPNG do.
-  dat writeimg_jnet_ dat;(>file);'png';'quality';_1
+  writeimg_jnet_ dat;(>file);'png'
 elseif. do.
   (boxopen file) 1!:2~ cmp encodepng_unx dat
 end.
