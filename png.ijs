@@ -3,10 +3,11 @@ require 'arc/zlib'
 coclass 'jpng'
 IFJNET=: (IFJNET"_)^:(0=4!:0<'IFJNET')0
 3 : 0''
+if. (IFJNET +. IFIOS +. UNAME-:'Android') do. USEQTPNG=: USEPPPNG=: 0 end.
 if. 0~: 4!:0<'USEQTPNG' do.
   if. IFQT do.
     USEQTPNG=: 1
-  elseif. -. IFIOS +. IFJA +. IFJNET +. (UNAME-:'Android') +. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) +. ((UNAME-:'Linux') *. (0;'') e.~ <2!:5 'DISPLAY') do.
+  elseif. -. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) +. ((UNAME-:'Linux') *. (0;'') e.~ <2!:5 'DISPLAY') do.
     if. (0 < #1!:0 jpath '~addons/ide/qt/qtlib.ijs') *. ('"',libjqt,'" dummyfunction + n')&cd :: (2={.@cder) '' do.
       require 'ide/qt/qtlib'
       USEQTPNG=: 1
@@ -23,7 +24,13 @@ end.
 if. 0~: 4!:0<'USEJNPNG' do.
   USEJNPNG=: IFJNET
 end.
-
+if. 0~: 4!:0<'USEPPPNG' do.
+  USEPPPNG=: (0 < #1!:0 jpath '~addons/graphics/pplatimg/pplatimg.ijs')
+  require^:USEPPPNG 'graphics/pplatimg'
+  if. USEPPPNG *. UNAME-:'Linux' do.
+    USEPPPNG=: (LIBGDKPIX_pplatimg_,' dummyfunction + n')&cd :: (2={.@cder) ''
+  end.
+end.
 EMPTY
 )
 
@@ -114,6 +121,11 @@ elseif. USEJAPNG do.
 elseif. USEJNPNG do.
   if. 0=# dat=. readimg_ja_ y do.
     'jnet cannot read PNG file' return.
+  end.
+  dat return.
+elseif. USEPPPNG do.
+  if. 0=# dat=. readimg_pplatimg_ y do.
+    'pplatimg cannot read PNG file' return.
   end.
   dat return.
 end.
@@ -275,6 +287,8 @@ elseif. USEJAPNG do.
   end.
 elseif. USEJNPNG do.
   writeimg_jnet_ dat;(>file);'png'
+elseif. USEPPPNG do.
+  dat writeimg_pplatimg_ (>file)
 elseif. do.
   (boxopen file) 1!:2~ cmp encodepng_unx dat
 end.
