@@ -8,7 +8,9 @@ Utilities for *.png files
 
 VERSION=: '1.0.27'
 
-RELEASE=: 'j805 j806 j807'
+RELEASE=: 'j805'
+
+FOLDER=: 'graphics/png'
 
 DEPENDS=: 0 : 0
 arc/zlib

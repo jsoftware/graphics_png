@@ -1,0 +1,11 @@
+NB. project: ~Addons/graphics/png/source/source
+NB.
+NB. defines list of source files.
+NB. path defaults to project directory.
+
+init.ijs
+filter.ijs
+read.ijs
+write.ijs
+util.ijs
+zdefs.ijs
