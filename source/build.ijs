@@ -1,6 +1,6 @@
 NB. build.ijs
 
-writesourcex_jp_ '~Addons/graphics/png/source/source';'~Addons/graphics/png/png.ijs'
+writesourcex_jp_ '~Addons/graphics/png/source';'~Addons/graphics/png/png.ijs'
 
 f=. 3 : 0
 (jpath '~addons/graphics/png/',y) (fcopynew ::0:) jpath '~Addons/graphics/png/',y
