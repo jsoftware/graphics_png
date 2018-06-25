@@ -6,9 +6,9 @@ DESCRIPTION=: 0 : 0
 Utilities for *.png files
 )
 
-VERSION=: '1.0.27'
+VERSION=: '1.0.28'
 
-RELEASE=: 'j805'
+RELEASE=: ''
 
 FOLDER=: 'graphics/png'
 
@@ -18,5 +18,5 @@ arc/zlib
 
 FILES=: 0 : 0
 png.ijs
-history.txt
+test/test1.ijs
 )

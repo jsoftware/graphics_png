@@ -113,7 +113,7 @@ if. color e. 0 4 do.
     if. 0=color do.
       r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
     else.
-      r=. (height,width)$ ({.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
+      r=. (height,width)$ (a.i.{.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
     end.
   elseif. do.
     'only 1 2 4 8 bit grayscale PNGs support' return.

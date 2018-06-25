@@ -1,4 +1,7 @@
 
+USEQTPNG_jpng_=: USEJAPNG_jpng_=: USEJNPNG_jpng_=: USEPPPNG_jpng_=: 0
+load 'graphics/png'
+
 test=: 3 : 0
 
 NB. write
@@ -17,6 +20,7 @@ assert. dat -: setalpha 256&#. 200 300 3 $ 255 0 0
 
 NB. read basic formats
 for_f. pngs do.
+echo >f
 dat=. readpng jpath '~Addons/graphics/png/test/',>f
 assert. 4= 3!:0 dat
 dat writepng jpath '~temp/',>f

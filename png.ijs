@@ -5,18 +5,7 @@ IFJNET=: (IFJNET"_)^:(0=4!:0<'IFJNET')0
 3 : 0''
 if. (IFJNET +. IFIOS +. UNAME-:'Android') do. USEQTPNG=: USEPPPNG=: 0 end.
 if. 0~: 4!:0<'USEQTPNG' do.
-  if. IFQT do.
-    USEQTPNG=: 1
-  elseif. -. ((UNAME-:'Darwin') *. ((0;'') e.~ <2!:5 'QT_PLUGIN_PATH')) +. ((UNAME-:'Linux') *. (0;'') e.~ <2!:5 'DISPLAY') do.
-    if. (0 < #1!:0 jpath '~addons/ide/qt/qtlib.ijs') *. ('"',libjqt,'" dummyfunction + n')&cd :: (2={.@cder) '' do.
-      require 'ide/qt/qtlib'
-      USEQTPNG=: 1
-    else.
-      USEQTPNG=: 0
-    end.
-  elseif. do.
-    USEQTPNG=: 0
-  end.
+  USEQTPNG=: IFQT
 end.
 if. 0~: 4!:0<'USEJAPNG' do.
   USEJAPNG=: IFJA
@@ -24,13 +13,15 @@ end.
 if. 0~: 4!:0<'USEJNPNG' do.
   USEJNPNG=: IFJNET
 end.
-if. 0~: 4!:0<'USEPPPNG' do.
+if. (0~: 4!:0<'USEPPPNG') > IFIOS +. UNAME-:'Android' do.
   USEPPPNG=: (0 < #1!:0 jpath '~addons/graphics/pplatimg/pplatimg.ijs')
   require^:USEPPPNG 'graphics/pplatimg'
   if. USEPPPNG *. UNAME-:'Linux' do.
     USEPPPNG=: (LIBGDKPIX_pplatimg_,' dummyfunction + n')&cd :: (2={.@cder) ''
+    USEPPPNG=: 0
   end.
 end.
+require^:USEPPPNG 'graphics/pplatimg'
 EMPTY
 )
 
@@ -211,7 +202,7 @@ if. color e. 0 4 do.
     if. 0=color do.
       r=. (height,width)$ (setalpha)`(trns&transparent)@.(*#trns) 8&gray2rgb , a.i. , 1&rfilter (height,1+width) $ data
     else.
-      r=. (height,width)$ ({.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
+      r=. (height,width)$ (a.i.{.("1) a) setalpha 8&gray2rgb a.i. {:("1) a=. _2]\ , 2&rfilter (height,1+2*width) $ data
     end.
   elseif. do.
     'only 1 2 4 8 bit grayscale PNGs support' return.
