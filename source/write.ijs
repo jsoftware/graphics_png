@@ -19,10 +19,14 @@ end.
 if. USEQTPNG do.
   dat writeimg_jqtide_ (>file);'png';'quality';_1
 elseif. USEJAPNG do.
-  if. 805> ".}.(i.&'/' {. ])9!:14'' do.
-    dat writeimg_ja_ (>file);'png';'quality';_1
-  else.
+  if. 3=4!:0<'revinfo_j_' do.
     writeimg_ja_ dat;(>file);'png'
+  else.
+    if. 805> ".}.(i.&'/' {. ])9!:14'' do.
+      dat writeimg_ja_ (>file);'png';'quality';_1
+    else.
+      writeimg_ja_ dat;(>file);'png'
+    end.
   end.
 elseif. USEJNPNG do.
   writeimg_jnet_ dat;(>file);'png'
