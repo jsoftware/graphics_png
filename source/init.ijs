@@ -38,7 +38,7 @@ end.
 if. (0~: 4!:0<'USEPPPNG') > IFIOS +. UNAME-:'Android' do.
   USEPPPNG=: (0 < #1!:0 jpath '~addons/graphics/pplatimg/pplatimg.ijs')
   require^:USEPPPNG 'graphics/pplatimg'
-  if. USEPPPNG *. UNAME-:'Linux' do.
+  if. USEPPPNG *. (<UNAME)e.'Linux';'FreeBSD';'OpenBSD' do.
     USEPPPNG=: (LIBGDKPIX_pplatimg_,' dummyfunction + n')&cd :: (2={.@cder) ''
     USEPPPNG=: 0     NB. !!! png written seemed lossy
   end.
